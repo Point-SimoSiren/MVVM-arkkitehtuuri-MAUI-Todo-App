@@ -1,0 +1,125 @@
+--------------------------------------------------
+
+KIITOKSET CO-PILOTILLE JOKA KIRJOITTI TÄMÄN OHJEEN
+
+--------------------------------------------------
+
+### Step-by-Step Guide
+
+#### 1. Create a New .NET MAUI Project
+First, create a new .NET MAUI project using the .NET CLI or Visual Studio.
+
+```bash
+dotnet new maui -n SimpleTodoApp
+cd SimpleTodoApp
+```
+
+#### 2. Add MVVM Packages
+Add the necessary MVVM packages to your project. You can use `CommunityToolkit.Mvvm` for MVVM support.
+
+```bash
+dotnet add package CommunityToolkit.Mvvm
+```
+
+#### 3. Define the Model
+Create a `TodoItem` model to represent a task.
+
+```csharp
+// Models/TodoItem.cs
+namespace SimpleTodoApp.Models
+{
+    public class TodoItem
+    {
+        public string Title { get; set; }
+        public bool IsCompleted { get; set; }
+    }
+}
+```
+
+#### 4. Create the ViewModel
+Create a `TodoViewModel` to manage the data and logic for the view.
+
+```csharp
+// ViewModels/TodoViewModel.cs
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using System.Collections.ObjectModel;
+using SimpleTodoApp.Models;
+
+namespace SimpleTodoApp.ViewModels
+{
+    public partial class TodoViewModel : ObservableObject
+    {
+        [ObservableProperty]
+        private string newTaskTitle;
+
+        public ObservableCollection<TodoItem> Tasks { get; } = new ObservableCollection<TodoItem>();
+
+        [RelayCommand]
+        private void AddTask()
+        {
+            if (!string.IsNullOrWhiteSpace(NewTaskTitle))
+            {
+                Tasks.Add(new TodoItem { Title = NewTaskTitle });
+                NewTaskTitle = string.Empty;
+            }
+        }
+    }
+}
+```
+
+#### 5. Create the View
+Update the `MainPage.xaml` to bind to the `TodoViewModel`.
+
+```xml
+<!-- MainPage.xaml -->
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:SimpleTodoApp"
+             xmlns:viewmodels="clr-namespace:SimpleTodoApp.ViewModels"
+             x:Class="SimpleTodoApp.MainPage">
+
+    <ContentPage.BindingContext>
+        <viewmodels:TodoViewModel />
+    </ContentPage.BindingContext>
+
+    <StackLayout Padding="10">
+        <Entry Placeholder="Enter new task"
+               Text="{Binding NewTaskTitle}" />
+        <Button Text="Add Task"
+                Command="{Binding AddTaskCommand}" />
+        <ListView ItemsSource="{Binding Tasks}">
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <TextCell Text="{Binding Title}" />
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+    </StackLayout>
+</ContentPage>
+```
+
+#### 6. Update the Code-Behind
+Ensure the `MainPage.xaml.cs` sets the `BindingContext`.
+
+```csharp
+// MainPage.xaml.cs
+namespace SimpleTodoApp
+{
+    public partial class MainPage : ContentPage
+    {
+        public MainPage()
+        {
+            InitializeComponent();
+        }
+    }
+}
+```
+
+### Running the App
+Build and run your app to see the ToDo list in action.
+
+```bash
+dotnet build
+dotnet run
+```
